@@ -44,5 +44,20 @@ window.emitter.on('proto-init', function () {
     })
     .catch(function (err) {
         console.error('something went wrong!');
+    });
+});
+
+// test module scope mutation
+// spoiler: mutation (we can create sigletons too easy, also)
+window.emitter.on('proto-init', function () {
+    promiseRequire('etc/modules/is-mutable.js')
+    .then(function (module) {
+        console.log(module.test(2))
     })
+    .then(function () {
+        return promiseRequire('etc/modules/is-mutable.js')
+    })
+    .then(function (module) {
+        console.log(module.test(2))
+    });
 });
