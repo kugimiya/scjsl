@@ -1,5 +1,6 @@
 // TODO: parse module path ('./foo/bar.js' same as 'foo/bar.js')
 // TODO: messages and errors handling
+// TODO: quick js minification (see function minificate)
 
 /**
  * SCJSL
@@ -36,17 +37,8 @@
             + 'return exports;})({});';
     }
 
-    function escapeRegExp(str) {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    }
-
-    function replaceAll (search, replacement, target) {
-        search = escapeRegExp(search);
-        return target.replace(new RegExp(search, 'g'), replacement);
-    };
-
     function minificate (js) {
-        return js; // TODO: quick js minification
+        return js; 
     }
 
     function processSource (path, cb, source) {
@@ -63,6 +55,7 @@
                 console.error(err);
             }
         }
+
         cb(null, exports);
     }
 
