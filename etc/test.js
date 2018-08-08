@@ -1,3 +1,5 @@
+var ____a = Date.now();
+
 (function (scope) {
     var Emmiter = function () {
         this.handlersStack = {};
@@ -19,15 +21,6 @@
     
     scope.emitter = new Emmiter();
 })(window);
-
-
-// Promisify SCJSL
-require('etc/modules/require-promise.js', function (err, exports) {
-    if (err) throw new Error(err);
-    window.promiseRequire = exports.promiseRequire;
-    window.emitter.emit('proto-init', null);
-});
-
 
 // test-component initialisation
 // if document isnt contain any .js-replace-text nodes
@@ -59,5 +52,14 @@ window.emitter.on('proto-init', function () {
     })
     .then(function (module) {
         console.log(module.test(2))
+
+        console.log('\n\nTake: ' + (Date.now() - ____a) + 'ms')
     });
+});
+
+// Promisify SCJSL
+require('etc/modules/require-promise.js', function (err, exports) {
+    if (err) throw new Error(err);
+    window.promiseRequire = exports.promiseRequire;
+    window.emitter.emit('proto-init', null);
 });

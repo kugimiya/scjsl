@@ -36,6 +36,36 @@
             + 'return exports;})({});';
     }
 
+    function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function replaceAll (search, replacement, target) {
+        search = escapeRegExp(search);
+        return target.replace(new RegExp(search, 'g'), replacement);
+    };
+
+    function minificate (js) {
+        return js; // TODO: quick js minification
+    }
+
+    function processSource (path, cb, source) {
+        var exports = eval( evalFunction( source ) );
+
+        if (options.cache) {
+            modules[path] = clone(exports);
+        }
+
+        if (options.cache && options.cacheToLocalStorage && (localStorage.getItem(path) == null)) {
+            try {
+                window.localStorage.setItem(path, minificate(source));
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        cb(null, exports);
+    }
+
     function xhrReadyStateChangeHandler (path, xhr, cb) {
         return function xhrReadyStateChangeHandlerInner () {
             if (options.logNet) console.log(
@@ -43,13 +73,7 @@
             );
 
             if ((xhr.readyState == 4) && (xhr.status == 200 || xhr.status == 304)) {
-                var exports = eval( evalFunction( xhr.responseText ) );
-
-                if (options.cache) {
-                    modules[path] = clone(exports);
-                }
-
-                cb(null, exports);
+                processSource(path, cb, xhr.responseText);
             }
         }
     }
@@ -70,6 +94,13 @@
             return;
         }
 
+        if (options.cache && options.cacheToLocalStorage) {
+            if (localStorage.getItem(path) != null) {
+                processSource(path, cb, localStorage.getItem(path));
+                return;
+            }
+        }
+
         var xhr = new XMLHttpRequest();
         xhr.open('GET', options.urlBase + path, options.async);
         xhr.onreadystatechange = xhrReadyStateChangeHandler(path, xhr, cb);
@@ -81,6 +112,7 @@
 })({
     async: true,
     cache: true,
+    cacheToLocalStorage: true,
     urlBase: location.href,
     logNet: true,
     window: window
